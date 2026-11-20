@@ -1,0 +1,19 @@
+# Virtual environment
+venv/
+.venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Manim temp files and render caches
+media/videos/
+media/temp/
+media/texts/
+media/qc_frames/
+.manim/
+
+# OS artifacts
+.DS_Store
+Thumbs.db

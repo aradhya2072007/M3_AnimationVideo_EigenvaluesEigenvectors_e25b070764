@@ -1,0 +1,120 @@
+#!/usr/bin/env python3
+"""Generate narration audio for each scene using edge-tts."""
+import asyncio
+import edge_tts
+import os
+import json
+
+VOICE = "en-GB-RyanNeural"
+OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "media", "audio")
+os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+SCENES = {
+    # Scene 0 has no narration — just a title card
+    "scene1": (
+        "Imagine you have a two-dimensional grid — a flat sheet of graph paper stretching out "
+        "in every direction. Now apply a matrix transformation. The entire grid warps: squares become "
+        "parallelograms, circles become ellipses, and almost every vector gets knocked off its original "
+        "direction. But here's the fascinating question: are there any special vectors that refuse to turn? "
+        "Vectors that stay perfectly on their original line, only getting stretched or compressed? "
+        "Those special directions are called eigenvectors, and the factors by which they stretch are called "
+        "eigenvalues. Let's find them."
+    ),
+    "scene2": (
+        "A linear transformation takes any vector x and maps it to a new vector A times x, where A is our matrix. "
+        "Most vectors change both their length and their direction. "
+        "But an eigenvector v is different. When we multiply A times v, the result is simply lambda times v — "
+        "the same direction, just scaled by a factor lambda. "
+        "This is the fundamental eigen-equation: A v equals lambda v. "
+        "Here, v must be non-zero; otherwise the equation is trivially true for any lambda. "
+        "The scalar lambda is called the eigenvalue, and it tells us the stretch factor. "
+        "If lambda is positive, the vector stretches or compresses along its line. "
+        "If lambda is negative, it also flips direction. And if lambda equals zero, the vector collapses to the origin. "
+        "Our learning objective: by the end of this video, the viewer will be able to explain what eigenvalues and "
+        "eigenvectors represent geometrically under a linear transformation, and calculate them step by step "
+        "for a two-by-two matrix."
+    ),
+    "scene3": (
+        "Let's see this in action with our matrix A equals three, one, zero, two. "
+        "Watch the grid as we apply the transformation. "
+        "Notice how most vectors rotate — they get pushed off their original direction. "
+        "I've drawn their original span lines as dotted lines so you can see the change. "
+        "But look at the vector along the x-axis: one, zero. After the transformation, it lands at three, zero — "
+        "exactly three times its original length, still pointing in the same direction. "
+        "That's eigenvector v one with eigenvalue three. "
+        "Now look at the vector minus one, one. After the transformation, it lands at minus two, two — "
+        "exactly two times its original. Same direction, just stretched. "
+        "That's eigenvector v two with eigenvalue two. "
+        "These are the only two independent directions that survive the transformation unchanged. "
+        "Every other vector rotates."
+    ),
+    "scene4": (
+        "Now let's derive these algebraically, step by step. "
+        "We start with the eigen-equation: A v equals lambda v. "
+        "Rearranging, we get A minus lambda I times v equals the zero vector. "
+        "For a non-trivial solution — meaning v is not the zero vector — the matrix A minus lambda I must be singular. "
+        "That means its determinant must equal zero. This gives us the characteristic equation. "
+        "For our matrix A equals three, one, zero, two, we compute A minus lambda I as "
+        "three minus lambda, one, zero, two minus lambda. "
+        "The determinant is three minus lambda times two minus lambda, minus one times zero, "
+        "which simplifies to three minus lambda times two minus lambda equals zero. "
+        "Setting each factor to zero: lambda one equals three, and lambda two equals two. These are our eigenvalues. "
+        "Now we find the eigenvectors. "
+        "For lambda one equals three: A minus three I equals zero, one, zero, negative one. "
+        "Setting this times v equal to zero, row reduction gives us y equals zero with x free. "
+        "So the eigenvector is v one equals one, zero — or any scalar multiple. "
+        "For lambda two equals two: A minus two I equals one, one, zero, zero. "
+        "Setting this times v equal to zero gives x plus y equals zero, so y equals negative x. "
+        "Taking x equals negative one, the eigenvector is v two equals negative one, one."
+    ),
+    "scene5": (
+        "Let's verify our results numerically. "
+        "A times v one: the matrix three, one, zero, two times the vector one, zero gives three, zero. "
+        "And three times v one is also three, zero. Check — they match! "
+        "A times v two: the matrix times negative one, one gives negative two, two. "
+        "And two times v two is also negative two, two. Check — perfect match! "
+        "Geometrically, eigenvalue three means the x-axis direction gets stretched to three times its length. "
+        "Eigenvalue two means the direction along negative one, one gets doubled. "
+        "If we had a negative eigenvalue, the vector would flip through the origin while scaling. "
+        "And an eigenvalue of zero would collapse the vector to the origin entirely, "
+        "meaning that direction lies in the null space of A."
+    ),
+    "scene6": (
+        "Let's recap three key takeaways. "
+        "First: eigenvectors are the special directions that remain unchanged — only scaled — under a linear transformation. "
+        "Second: eigenvalues are found by solving the characteristic equation, determinant of A minus lambda I equals zero. "
+        "Third: eigenvectors are found by solving the null space of A minus lambda I for each eigenvalue. "
+        "Thank you for watching! This video was created by Aradhya, Student ID e25b070764, "
+        "for the M3 Internal Assessment."
+    ),
+}
+
+
+async def generate_audio():
+    durations = {}
+    for scene_name, text in SCENES.items():
+        output_file = os.path.join(OUTPUT_DIR, f"{scene_name}.mp3")
+        print(f"Generating {scene_name}...")
+        communicate = edge_tts.Communicate(text, VOICE, rate="+8%")
+        await communicate.save(output_file)
+        print(f"  Saved: {output_file}")
+    
+    # Get durations using mutagen (pure Python MP3 parser)
+    import mutagen.mp3
+    for scene_name in SCENES:
+        filepath = os.path.join(OUTPUT_DIR, f"{scene_name}.mp3")
+        audio = mutagen.mp3.MP3(filepath)
+        dur = float(audio.info.length)
+        durations[scene_name] = dur
+        print(f"  {scene_name}: {dur:.2f}s")
+    
+    # Save durations to JSON for Manim to read
+    dur_file = os.path.join(OUTPUT_DIR, "durations.json")
+    with open(dur_file, "w") as f:
+        json.dump(durations, f, indent=2)
+    print(f"\nDurations saved to {dur_file}")
+    print(f"Total narration: {sum(durations.values()):.2f}s")
+
+
+if __name__ == "__main__":
+    asyncio.run(generate_audio())
