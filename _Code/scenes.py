@@ -612,7 +612,7 @@ class Scene6_Summary(Scene):
             Text("Script, animation code and narration were", font_size=16, color=GREY_B),
             Text("produced with the help of Claude (Anthropic)", font_size=16, color=GREY_B),
             Text("inside Antigravity.", font_size=16, color=GREY_B),
-            Text("Voice: edge-tts (en-GB-RyanNeural).", font_size=16, color=YELLOW),
+            Text("Voice: Cloned student voice (F5-TTS).", font_size=16, color=YELLOW),
             Text("All mathematics was checked by the student.", font_size=16, color=WHITE, weight=BOLD),
         ).arrange(DOWN, aligned_edge=LEFT, buff=0.15)
         ai_box = VGroup(ai_header, ai_items).arrange(DOWN, aligned_edge=LEFT, buff=0.15).shift(RIGHT * 3.4 + DOWN * 0.8)

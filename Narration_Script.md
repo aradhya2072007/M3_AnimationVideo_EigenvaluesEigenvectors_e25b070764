@@ -2,6 +2,7 @@
 
 **Eigenvalues & Eigenvectors: Geometric Meaning and Calculation for a 2×2 Matrix**
 **Student:** ARADHYA | **Student ID:** e25b070764
+**Voice-Over Method:** Local zero-shot voice cloning via F5-TTS (`F5TTS_v1_Base`) using the student's pre-processed voice recording (`voice_sample.m4a` → `voice_ref.wav`), loudness-normalized (`loudnorm`) and synchronized to each Manim scene.
 
 ---
 

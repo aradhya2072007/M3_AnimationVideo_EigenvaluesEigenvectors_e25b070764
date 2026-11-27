@@ -12,11 +12,11 @@ This document explains each code file in the `_Code/` folder and how every scene
 | File | Purpose |
 |---|---|
 | `scenes.py` | Main Manim animation file — contains all 7 scene classes |
-| `generate_tts.py` | Generates voice-over audio for each scene using edge-tts |
+| `generate_tts.py` | Generates voice-cloned narration for each scene using F5-TTS (`F5TTS_v1_Base`) from `voice_ref.wav`, with FFmpeg timing sync and loudness normalization (and `edge-tts` fallback) |
 | `verify_eigen.py` | NumPy verification that all eigenvalue/eigenvector computations are correct |
 | `render_and_merge.sh` | Shell script that orchestrates the full pipeline: verify → TTS → render → combine |
 | `narration_script.txt` | Complete narration text, scene by scene |
-| `requirements.txt` | Python dependencies (manim, numpy, edge-tts) |
+| `requirements.txt` | Python dependencies (`manim`, `numpy`, `f5-tts`, `torch`, `torchaudio`, `transformers`, `edge-tts`) |
 
 ---
 
@@ -77,13 +77,12 @@ This document explains each code file in the `_Code/` folder and how every scene
 
 ---
 
-## generate_tts.py — Voice-Over Generation
+## generate_tts.py — Voice-Cloned Narration Generation
 
-- Uses the `edge-tts` Python library with the voice `en-GB-RyanNeural`.
-- Stores narration text for scenes 1–6 as a dictionary.
-- For each scene, calls `edge_tts.Communicate(text, VOICE).save(output_file)` to generate an MP3.
-- After generating all files, uses `ffprobe` to measure each audio file's duration and saves the results to `durations.json`.
-- The Manim scenes read these durations to time their animations.
+- Uses the local zero-shot **F5-TTS** (`F5TTS_v1_Base`) diffusion flow-matching TTS model running on Apple Silicon (`MPS`) with the student's pre-processed voice recording (`voice_ref.wav`, derived from `voice_sample.m4a` via FFmpeg `-ar 22050 -ac 1`, `afftdn` noise reduction, and `loudnorm`).
+- Uses a clean 8.8-second speech segment with its exact transcript as the zero-shot speaker prompt so the synthesized voice matches the student's timbre and cadence.
+- Generates scene-by-scene narration for Scenes 1–6 from `_Code/narration_script.txt`, tightens inter-sentence pauses and applies gentle FFmpeg `atempo` / `apad` timing synchronization to match each rendered Manim scene's exact duration, and normalizes loudness (`loudnorm=I=-16:TP=-1.5:LRA=11`) at 48 kHz stereo.
+- Measures and writes durations to `durations.json` (and retains an `edge-tts` fallback mode).
 
 ## verify_eigen.py — Mathematical Verification
 

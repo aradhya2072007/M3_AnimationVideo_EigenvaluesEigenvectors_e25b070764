@@ -23,11 +23,13 @@
 | `_Video.mp4` | Final narrated animation video (1920×1080, H.264 + AAC, ~5 min) |
 | `_Code/` | All source code |
 | `_Code/scenes.py` | Manim scene classes (7 scenes) |
-| `_Code/generate_tts.py` | TTS audio generation script (edge-tts) |
+| `_Code/generate_tts.py` | Voice-cloned narration generator (F5-TTS zero-shot voice cloning, with edge-tts fallback) |
 | `_Code/verify_eigen.py` | NumPy verification of eigenvalue calculations |
 | `_Code/render_and_merge.sh` | Build pipeline: verify → TTS → render → merge |
 | `_Code/narration_script.txt` | Full narration text by scene |
 | `_Code/requirements.txt` | Python dependencies |
+| `voice_sample.m4a` | Student's original 43-second voice recording (Apple Voice Memos) |
+| `voice_ref.wav` | Pre-processed 22.05 kHz mono speaker reference (`afftdn` + `loudnorm`) |
 | `Storyboard.pdf` | 6-scene storyboard with learning objective |
 | `Narration_Script.pdf` | Complete narration script |
 | `Code_Walkthrough.pdf` | Plain-English explanation of every code file |
@@ -42,8 +44,8 @@
 |---|---|
 | **Manim Community Edition** (Python) | All mathematical animations and scene rendering |
 | **LaTeX** (via MathTex in Manim) | Typesetting mathematical equations |
-| **edge-tts** (`en-GB-RyanNeural`) | Text-to-speech narration |
-| **FFmpeg** | Audio/video merging and final assembly |
+| **F5-TTS** (`F5TTS_v1_Base`) | Local zero-shot voice cloning from the student's voice sample (`voice_ref.wav`) |
+| **FFmpeg** | Noise reduction (`afftdn`), loudness normalization (`loudnorm`), timing sync, and A/V merge |
 | **NumPy** | Eigenvalue/eigenvector verification |
 
 ---
@@ -52,7 +54,7 @@
 
 ```bash
 # 1. Clone this repository
-git clone https://github.com/<YOUR_GITHUB_USERNAME>/M3_AnimationVideo_EigenvaluesEigenvectors_e25b070764.git
+git clone https://github.com/aradhya2072007/M3_AnimationVideo_EigenvaluesEigenvectors_e25b070764.git
 cd M3_AnimationVideo_EigenvaluesEigenvectors_e25b070764
 
 # 2. Create virtual environment and install dependencies
@@ -82,4 +84,4 @@ bash _Code/render_and_merge.sh
 
 ## AI Disclosure
 
-Script, animation code and narration were produced with the help of Claude (Anthropic) inside Antigravity. Voice: edge-tts (en-GB-RyanNeural). All mathematics was checked by the student.
+Script, animation code and narration text were produced with the help of Claude (Anthropic) and Gemini inside Antigravity. Voice: Cloned from the student's own voice recording (`voice_sample.m4a` → `voice_ref.wav`) using the local zero-shot F5-TTS (`F5TTS_v1_Base`) model. All mathematics was checked by the student.

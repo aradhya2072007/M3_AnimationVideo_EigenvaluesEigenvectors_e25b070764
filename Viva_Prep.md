@@ -45,10 +45,10 @@ Yes. Complex eigenvalues (occurring in conjugate pairs for real matrices) indica
 Green for î (basis vector i-hat) and red for ĵ (basis vector j-hat) follow the 3Blue1Brown convention. Yellow for v₁ and cyan for v₂ provide high-contrast, distinguishable colours against the dark background. Grey for general vectors keeps them visually subordinate.
 
 ### Q12. How do you keep the audio and animation in sync?
-The TTS script generates all audio first and measures each file's duration with ffprobe, saving the results to durations.json. Each Manim scene reads this file and adjusts its wait times so the total animation length matches the audio.
+Each rendered Manim scene (`Scene0` through `Scene6`) has an exact known duration recorded in `durations.json`. After F5-TTS generates each scene's cloned narration WAV, FFmpeg measures its length with `ffprobe`, tightens excess pauses (`silenceremove`), and applies gentle `atempo` time-stretching (or trailing silence padding with `apad`) so every voice track matches its scene video duration cleanly with zero drift across scene transitions.
 
-### Q13. What tool generates the narration, and which voice?
-edge-tts (Microsoft Edge Text-to-Speech) with the voice "en-GB-RyanNeural", a natural British English male voice.
+### Q13. What tool generates the narration, and which voice is used?
+The narration is cloned from the student's own 43-second voice recording (`voice_sample.m4a`, pre-processed with FFmpeg `afftdn` noise reduction and `loudnorm` into `voice_ref.wav`) using the local zero-shot **F5-TTS** (`F5TTS_v1_Base`) model running on Apple Silicon MPS, with FFmpeg `loudnorm` (`-16 LUFS`) applied before merging into `_Video.mp4`. (`edge-tts` is retained only as an optional fallback.)
 
 ### Q14. How is the final video assembled?
 FFmpeg merges each scene's rendered video with its audio track, then concatenates all scenes using the concat demuxer. The output is H.264 video + AAC audio at 1920×1080, 30fps.
